@@ -1,0 +1,134 @@
+@import "tailwindcss";
+
+@theme {
+  --color-sage-50: #f6f7f4;
+  --color-sage-100: #e8ebe3;
+  --color-sage-200: #d1d7c7;
+  --color-sage-300: #b3bda3;
+  --color-sage-400: #95a383;
+  --color-sage-500: #788764;
+  --color-sage-600: #5e6b4e;
+  --color-sage-700: #4a5440;
+  --color-sage-800: #3d4536;
+  --color-sage-900: #343a2f;
+
+  --color-terracotta: #c97b6b;
+  --color-terracotta-light: #e8b4a8;
+  --color-complete: #7ba887;
+  --color-complete-light: #c5e0cc;
+  --color-warm-glow: #f5e6d3;
+
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+body {
+  background-color: var(--color-sage-50);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Core breathing animation - 6s slow cycle, organic easing */
+@keyframes breathe {
+  0%, 100% { transform: scale(1); opacity: 0.55; }
+  40% { transform: scale(1.18); opacity: 1; }
+  60% { transform: scale(1.18); opacity: 1; }
+}
+.animate-breathe {
+  animation: breathe 6s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+}
+
+/* Card entrance - slow, calm fade-up */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-up {
+  animation: fadeUp 0.6s ease-out both;
+}
+
+/* Completion ripple - satisfying outward pulse */
+@keyframes completionRipple {
+  0% { transform: scale(0.8); opacity: 1; }
+  100% { transform: scale(2.5); opacity: 0; }
+}
+.animate-ripple {
+  animation: completionRipple 0.8s ease-out forwards;
+}
+
+/* Checkmark draw animation */
+@keyframes drawCheck {
+  from { stroke-dashoffset: 24; }
+  to { stroke-dashoffset: 0; }
+}
+.animate-check {
+  stroke-dasharray: 24;
+  animation: drawCheck 0.4s ease-out 0.2s both;
+}
+
+/* Gentle glow pulse for celebration */
+@keyframes gentleGlow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(123, 168, 135, 0); }
+  50% { box-shadow: 0 0 30px 8px rgba(123, 168, 135, 0.15); }
+}
+.animate-glow {
+  animation: gentleGlow 3s ease-in-out infinite;
+}
+
+/* Slide in from bottom for batch reveal */
+@keyframes slideReveal {
+  from { opacity: 0; transform: translateY(30px) scale(0.95); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+.animate-reveal {
+  animation: slideReveal 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* Peaceful float for blessed day */
+@keyframes peacefulFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+.animate-float {
+  animation: peacefulFloat 6s ease-in-out infinite;
+}
+
+/* Brain dump relief pulse */
+@keyframes reliefPulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+.animate-relief {
+  animation: reliefPulse 0.5s ease-out;
+}
+
+/* Smooth counter transition */
+.counter-transition {
+  transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Satisfying scale pop on interaction */
+@keyframes popIn {
+  0% { transform: scale(0.85); opacity: 0; }
+  60% { transform: scale(1.08); }
+  100% { transform: scale(1); opacity: 1; }
+}
+.animate-pop {
+  animation: popIn 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+/* Subtle shimmer for blessed day sparkle */
+@keyframes shimmer {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+.animate-shimmer {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(123, 168, 135, 0.15) 50%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 3s ease-in-out infinite;
+}
