@@ -30,7 +30,7 @@ export default function Header({ onLogout, taskCount }: Props) {
           <Link to="/" className={linkClass('/')}>Focus</Link>
           <Link to="/inbox" className={linkClass('/inbox')}>
             Mind
-            {taskCount > 0 && (
+            {pathname === '/inbox' && taskCount > 0 && (
               <span className="ml-1.5 text-xs text-stone-400">{taskCount}</span>
             )}
           </Link>

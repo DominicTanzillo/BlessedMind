@@ -27,14 +27,14 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* Core breathing animation - 6s slow cycle, organic easing */
+/* Core breathing animation - 4.8s cycle, organic easing */
 @keyframes breathe {
   0%, 100% { transform: scale(1); opacity: 0.55; }
   40% { transform: scale(1.18); opacity: 1; }
   60% { transform: scale(1.18); opacity: 1; }
 }
 .animate-breathe {
-  animation: breathe 6s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+  animation: breathe 4.8s cubic-bezier(0.45, 0, 0.55, 1) infinite;
 }
 
 /* Card entrance - slow, calm fade-up */
