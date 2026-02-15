@@ -45,6 +45,7 @@ export default function App() {
       completedInBatch={completedInBatch}
       allCompleted={allCompleted}
       onComplete={completeTask}
+      onUncomplete={uncompleteTask}
       onCompleteStep={completeStep}
       onNextBatch={generateNewBatch}
       loading={tasksLoading || batchLoading}

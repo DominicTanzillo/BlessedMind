@@ -9,6 +9,7 @@ import type { Category } from '../../lib/constants'
 interface Props {
   task: Task
   onComplete: (id: string) => void
+  onUncomplete: (id: string) => void
   onCompleteStep: (id: string) => void
   index: number
 }
@@ -26,7 +27,7 @@ function formatRelativeDate(dateStr: string | null): string {
   return `Due ${date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`
 }
 
-export default function TaskCard({ task, onComplete, onCompleteStep, index }: Props) {
+export default function TaskCard({ task, onComplete, onUncomplete, onCompleteStep, index }: Props) {
   const [justCompleted, setJustCompleted] = useState(false)
   const [completionMsg, setCompletionMsg] = useState('')
   const [showRipple, setShowRipple] = useState(false)
@@ -45,8 +46,14 @@ export default function TaskCard({ task, onComplete, onCompleteStep, index }: Pr
   const totalSteps = hasSteps ? task.steps!.length : 0
   const isLastStep = hasSteps && currentStepIndex === totalSteps - 1
 
-  function handleComplete() {
-    if (isCompleted) return
+  function handleClick() {
+    if (isCompleted) {
+      // Undo completion
+      setJustCompleted(false)
+      setCompletionMsg('')
+      onUncomplete(task.id)
+      return
+    }
 
     if (hasSteps && currentStep) {
       // Complete current step
@@ -95,16 +102,16 @@ export default function TaskCard({ task, onComplete, onCompleteStep, index }: Pr
       style={{ animationDelay: `${index * 150}ms` }}
     >
       <div className="flex items-start gap-4">
-        {/* Completion circle */}
+        {/* Completion circle - clickable to undo */}
         <div className="relative mt-1">
           <button
-            onClick={handleComplete}
-            disabled={isCompleted}
+            onClick={handleClick}
             className={`relative z-10 w-8 h-8 rounded-full border-2 flex-shrink-0 flex items-center justify-center transition-all duration-500 ${
               isCompleted
-                ? 'bg-complete border-complete text-white scale-110'
+                ? 'bg-complete border-complete text-white scale-110 hover:bg-complete/60 hover:border-complete/60'
                 : 'border-stone-300 hover:border-sage-500 hover:scale-110 hover:bg-sage-50'
             }`}
+            title={isCompleted ? 'Undo completion' : hasSteps && currentStep ? `Complete: ${currentStep.title}` : 'Complete'}
           >
             {isCompleted && (
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

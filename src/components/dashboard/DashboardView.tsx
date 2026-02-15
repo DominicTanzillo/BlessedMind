@@ -9,6 +9,7 @@ interface Props {
   completedInBatch: number
   allCompleted: boolean
   onComplete: (id: string) => void
+  onUncomplete: (id: string) => void
   onCompleteStep: (id: string) => void
   onNextBatch: () => void
   loading: boolean
@@ -20,6 +21,7 @@ export default function DashboardView({
   completedInBatch,
   allCompleted,
   onComplete,
+  onUncomplete,
   onCompleteStep,
   onNextBatch,
   loading,
@@ -105,7 +107,7 @@ export default function DashboardView({
         {/* Completed tasks - visible, checked off */}
         <div className="space-y-3">
           {sortedBatch.map((task, i) => (
-            <TaskCard key={task.id} task={task} onComplete={onComplete} onCompleteStep={onCompleteStep} index={i} />
+            <TaskCard key={task.id} task={task} onComplete={onComplete} onUncomplete={onUncomplete} onCompleteStep={onCompleteStep} index={i} />
           ))}
         </div>
 
@@ -176,7 +178,7 @@ export default function DashboardView({
       {/* All 3 task cards - incomplete first, completed at bottom checked off */}
       <div className="space-y-3">
         {sortedBatch.map((task, i) => (
-          <TaskCard key={task.id} task={task} onComplete={onComplete} onCompleteStep={onCompleteStep} index={i} />
+          <TaskCard key={task.id} task={task} onComplete={onComplete} onUncomplete={onUncomplete} onCompleteStep={onCompleteStep} index={i} />
         ))}
       </div>
 
