@@ -109,26 +109,29 @@ export function useActiveBatch(tasks: Task[]) {
     }
   }, [batch, tasks])
 
-  // Remove a task from focus batch
+  // Remove a task from focus batch (no auto-fill — user controls focus)
   const unpinFromFocus = useCallback(async (taskId: string) => {
     if (!batch) return
     const newIds = batch.task_ids.filter(id => id !== taskId)
 
-    // Fill the empty slot from ranked tasks (exclude the one being unpinned)
-    const ranked = rankTasks(tasks).filter(t => t.id !== taskId && !newIds.includes(t.id))
-    while (newIds.length < BATCH_SIZE && ranked.length > 0) {
-      newIds.push(ranked.shift()!.id)
-    }
+    // Delete old batch and re-create to avoid update issues
+    await supabase.from('active_batch').delete().eq('id', batch.id)
 
-    const { error } = await supabase
-      .from('active_batch')
-      .update({ task_ids: newIds })
-      .eq('id', batch.id)
-
-    if (!error) {
-      setBatch({ ...batch, task_ids: newIds })
+    if (newIds.length > 0) {
+      const { data } = await supabase
+        .from('active_batch')
+        .insert({ task_ids: newIds, completed_task_ids: [] })
+        .select()
+        .single()
+      if (data) {
+        setBatch(data as ActiveBatch)
+      } else {
+        setBatch(null)
+      }
+    } else {
+      setBatch(null)
     }
-  }, [batch, tasks])
+  }, [batch])
 
   // Initialize batch if none exists
   useEffect(() => {
