@@ -109,12 +109,18 @@ export function useActiveBatch(tasks: Task[]) {
     }
   }, [batch, tasks])
 
-  // Remove a task from focus batch (no auto-fill — user controls focus)
+  // Remove a task from focus batch, backfill from algorithm (but never re-add the unpinned task)
   const unpinFromFocus = useCallback(async (taskId: string) => {
     if (!batch) return
     const newIds = batch.task_ids.filter(id => id !== taskId)
 
-    // Delete old batch and re-create to avoid update issues
+    // Fill from ranked tasks, excluding the one being unpinned
+    const ranked = rankTasks(tasks).filter(t => t.id !== taskId && !newIds.includes(t.id))
+    while (newIds.length < BATCH_SIZE && ranked.length > 0) {
+      newIds.push(ranked.shift()!.id)
+    }
+
+    // Delete old batch and re-create to ensure persistence
     await supabase.from('active_batch').delete().eq('id', batch.id)
 
     if (newIds.length > 0) {
@@ -131,7 +137,7 @@ export function useActiveBatch(tasks: Task[]) {
     } else {
       setBatch(null)
     }
-  }, [batch])
+  }, [batch, tasks])
 
   // Initialize batch if none exists
   useEffect(() => {
