@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Badge from '../ui/Badge'
 import { PRIORITIES, CATEGORY_EMOJI } from '../../lib/constants'
 import { getCompletionMessage, shouldShowInsight } from '../../lib/celebrations'
@@ -28,15 +28,26 @@ function formatRelativeDate(dateStr: string | null): string {
 }
 
 export default function TaskCard({ task, onComplete, onUncomplete, onCompleteStep, index }: Props) {
-  const [justCompleted, setJustCompleted] = useState(false)
+  const [animatingComplete, setAnimatingComplete] = useState(false)
   const [completionMsg, setCompletionMsg] = useState('')
   const [showRipple, setShowRipple] = useState(false)
+  const prevCompleted = useRef(task.completed)
+
+  // Clear animation state when task prop changes
+  useEffect(() => {
+    if (task.completed !== prevCompleted.current) {
+      setAnimatingComplete(false)
+      setShowRipple(false)
+    }
+    prevCompleted.current = task.completed
+  }, [task.completed])
+
+  const isCompleted = task.completed
 
   const priorityInfo = PRIORITIES.find(p => p.value === task.priority)
   const emoji = CATEGORY_EMOJI[task.category as Category] ?? '📋'
   const dateText = formatRelativeDate(task.due_date)
   const isOverdue = dateText.includes('overdue')
-  const isCompleted = task.completed || justCompleted
 
   // Multi-step logic
   const hasSteps = task.steps && task.steps.length > 0
@@ -45,23 +56,26 @@ export default function TaskCard({ task, onComplete, onUncomplete, onCompleteSte
   const completedSteps = hasSteps ? task.steps!.filter(s => s.completed).length : 0
   const totalSteps = hasSteps ? task.steps!.length : 0
   const isLastStep = hasSteps && currentStepIndex === totalSteps - 1
+  const hasCompletedSteps = completedSteps > 0
 
-  function handleClick() {
+  function handleMainClick() {
+    // If task is fully complete, undo it
     if (isCompleted) {
-      // Undo completion
-      setJustCompleted(false)
       setCompletionMsg('')
       onUncomplete(task.id)
       return
     }
 
+    // If animating, ignore rapid clicks
+    if (animatingComplete) return
+
     if (hasSteps && currentStep) {
       // Complete current step
       setShowRipple(true)
+      setAnimatingComplete(true)
 
       if (isLastStep) {
         playComplete()
-        setJustCompleted(true)
       } else {
         playStepComplete()
       }
@@ -75,12 +89,13 @@ export default function TaskCard({ task, onComplete, onUncomplete, onCompleteSte
       setTimeout(() => {
         onCompleteStep(task.id)
         setShowRipple(false)
-      }, 600)
+        setAnimatingComplete(false)
+      }, 500)
     } else {
       // Simple task
       playComplete()
       setShowRipple(true)
-      setJustCompleted(true)
+      setAnimatingComplete(true)
 
       if (shouldShowInsight()) {
         setCompletionMsg(getCompletionMessage())
@@ -88,32 +103,42 @@ export default function TaskCard({ task, onComplete, onUncomplete, onCompleteSte
 
       setTimeout(() => {
         onComplete(task.id)
-      }, 600)
+        setShowRipple(false)
+        setAnimatingComplete(false)
+      }, 500)
     }
+  }
+
+  function handleUndoStep() {
+    setCompletionMsg('')
+    onUncomplete(task.id)
   }
 
   return (
     <div
       className={`animate-reveal rounded-2xl border p-5 transition-all duration-500 ${
         isCompleted
-          ? 'bg-complete-light/30 border-complete/20 scale-[0.98]'
+          ? 'bg-complete-light/30 border-complete/20'
           : 'bg-white border-stone-200 hover:shadow-md hover:border-sage-300'
       }`}
       style={{ animationDelay: `${index * 150}ms` }}
     >
       <div className="flex items-start gap-4">
-        {/* Completion circle - clickable to undo */}
+        {/* Completion circle */}
         <div className="relative mt-1">
           <button
-            onClick={handleClick}
+            onClick={handleMainClick}
+            disabled={animatingComplete}
             className={`relative z-10 w-8 h-8 rounded-full border-2 flex-shrink-0 flex items-center justify-center transition-all duration-500 ${
               isCompleted
                 ? 'bg-complete border-complete text-white scale-110 hover:bg-complete/60 hover:border-complete/60'
-                : 'border-stone-300 hover:border-sage-500 hover:scale-110 hover:bg-sage-50'
+                : animatingComplete
+                  ? 'bg-complete border-complete text-white scale-110'
+                  : 'border-stone-300 hover:border-sage-500 hover:scale-110 hover:bg-sage-50'
             }`}
             title={isCompleted ? 'Undo completion' : hasSteps && currentStep ? `Complete: ${currentStep.title}` : 'Complete'}
           >
-            {isCompleted && (
+            {(isCompleted || animatingComplete) && (
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path className="animate-check" strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
               </svg>
@@ -145,6 +170,18 @@ export default function TaskCard({ task, onComplete, onUncomplete, onCompleteSte
                     style={{ width: `${(completedSteps / totalSteps) * 100}%` }}
                   />
                 </div>
+                {/* Undo last step button */}
+                {hasCompletedSteps && (
+                  <button
+                    onClick={handleUndoStep}
+                    className="text-stone-300 hover:text-terracotta transition text-xs flex items-center gap-0.5"
+                    title="Undo last step"
+                  >
+                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 15L3 9m0 0l6-6M3 9h12a6 6 0 010 12h-3" />
+                    </svg>
+                  </button>
+                )}
               </div>
               <p className="text-sm text-sage-700 font-medium">
                 {currentStep.title}
@@ -162,7 +199,7 @@ export default function TaskCard({ task, onComplete, onUncomplete, onCompleteSte
             </p>
           )}
 
-          {!isCompleted && (
+          {!isCompleted && !currentStep && (
             <div className="flex items-center gap-2 mt-3">
               {priorityInfo && (
                 <Badge className={priorityInfo.color}>{priorityInfo.label}</Badge>
