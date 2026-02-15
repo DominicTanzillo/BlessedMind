@@ -114,8 +114,8 @@ export function useActiveBatch(tasks: Task[]) {
     if (!batch) return
     const newIds = batch.task_ids.filter(id => id !== taskId)
 
-    // Fill the empty slot from ranked tasks
-    const ranked = rankTasks(tasks).filter(t => !newIds.includes(t.id))
+    // Fill the empty slot from ranked tasks (exclude the one being unpinned)
+    const ranked = rankTasks(tasks).filter(t => t.id !== taskId && !newIds.includes(t.id))
     while (newIds.length < BATCH_SIZE && ranked.length > 0) {
       newIds.push(ranked.shift()!.id)
     }
