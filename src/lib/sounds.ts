@@ -171,6 +171,29 @@ export function playRefresh() {
   } catch { /* silent fallback */ }
 }
 
+/**
+ * Login welcome – gentle, centering two-note chime.
+ * A soft G4 → C5 perfect fourth, warm and brief (~400ms).
+ * Feels like a door opening to a calm space.
+ */
+export function playWelcome() {
+  try {
+    const c = getCtx()
+    const t = c.currentTime
+
+    // Warm pad underneath – very quiet
+    tone(261.63, 'sine', 0.6, t, 0.04, c.destination) // C4 pad
+
+    // G4 → C5 perfect fourth, staggered
+    tone(392.0, 'sine', 0.35, t + 0.05, 0.09, c.destination)    // G4
+    tone(392.0, 'triangle', 0.25, t + 0.05, 0.03, c.destination) // G4 shimmer
+    tone(523.25, 'sine', 0.4, t + 0.2, 0.08, c.destination)     // C5
+    tone(523.25, 'triangle', 0.3, t + 0.2, 0.025, c.destination) // C5 shimmer
+
+    haptic(30)
+  } catch { /* silent fallback */ }
+}
+
 // ── Haptic (mobile) ────────────────────────────────────────
 
 function haptic(ms: number) {

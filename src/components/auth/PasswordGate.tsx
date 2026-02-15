@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from 'react'
+import { playWelcome } from '../../lib/sounds'
 
 interface Props {
   onLogin: (password: string) => Promise<boolean>
@@ -12,7 +13,10 @@ export default function PasswordGate({ onLogin, error }: Props) {
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
     setLoading(true)
-    await onLogin(password)
+    const success = await onLogin(password)
+    if (success) {
+      playWelcome()
+    }
     setLoading(false)
   }
 
