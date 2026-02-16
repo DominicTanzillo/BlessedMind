@@ -65,7 +65,7 @@ export function useActiveBatch(tasks: Task[]) {
 
   // Initialize batch if none exists
   useEffect(() => {
-    if (!loading && !batch && tasks.filter(t => !t.completed).length > 0) {
+    if (!loading && !batch && tasks.filter(t => !t.completed && !t.waiting).length > 0) {
       generateNewBatch()
     }
   }, [loading, batch, tasks, generateNewBatch])

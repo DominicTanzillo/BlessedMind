@@ -13,6 +13,7 @@ interface Props {
   onEdit: (id: string, updates: Partial<Task>) => void
   onStar: (id: string) => void
   onUnstar: (id: string) => void
+  onConvertToWaiting?: (id: string) => void
 }
 
 function formatRelativeDate(dateStr: string | null): string {
@@ -28,7 +29,7 @@ function formatRelativeDate(dateStr: string | null): string {
   return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
 }
 
-export default function TaskRow({ task, onComplete, onUncomplete, onDelete, onEdit, onStar, onUnstar }: Props) {
+export default function TaskRow({ task, onComplete, onUncomplete, onDelete, onEdit, onStar, onUnstar, onConvertToWaiting }: Props) {
   const [editing, setEditing] = useState(false)
   const [editTitle, setEditTitle] = useState(task.title)
   const [editDescription, setEditDescription] = useState(task.description)
@@ -232,6 +233,20 @@ export default function TaskRow({ task, onComplete, onUncomplete, onDelete, onEd
 
       {/* Action buttons - pinned star always visible, rest on hover */}
       <div className={`flex items-center gap-1 transition ${task.starred ? '' : 'opacity-0 group-hover:opacity-100'}`}>
+        {/* Follow-up button for completed tasks */}
+        {task.completed && onConvertToWaiting && (
+          <button
+            onClick={() => onConvertToWaiting(task.id)}
+            className="p-1 rounded text-stone-300 hover:text-sage-600 transition flex items-center gap-0.5 text-xs"
+            title="Convert to follow-up"
+          >
+            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            F/U
+          </button>
+        )}
+
         {/* Star/unstar - manual priority boost */}
         {!task.completed && (
           <button

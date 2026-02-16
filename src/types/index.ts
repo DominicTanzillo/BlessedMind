@@ -15,6 +15,7 @@ export interface Task {
   completed_at: string | null
   starred: boolean
   starred_at: string | null
+  waiting: boolean
   steps: Step[] | null
   created_at: string
   updated_at: string

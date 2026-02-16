@@ -11,10 +11,11 @@ interface Props {
   onEdit: (id: string, updates: Partial<Task>) => void
   onStar: (id: string) => void
   onUnstar: (id: string) => void
+  onConvertToWaiting: (id: string) => void
   onAddClick: () => void
 }
 
-export default function InboxView({ tasks, onComplete, onUncomplete, onDelete, onEdit, onStar, onUnstar, onAddClick }: Props) {
+export default function InboxView({ tasks, onComplete, onUncomplete, onDelete, onEdit, onStar, onUnstar, onConvertToWaiting, onAddClick }: Props) {
   const [filter, setFilter] = useState<TaskFilter>({
     search: '',
     category: '',
@@ -24,6 +25,7 @@ export default function InboxView({ tasks, onComplete, onUncomplete, onDelete, o
 
   const filtered = useMemo(() => {
     return tasks.filter(t => {
+      if (t.waiting) return false
       if (!filter.showCompleted && t.completed) return false
       if (filter.search && !t.title.toLowerCase().includes(filter.search.toLowerCase())) return false
       if (filter.category && t.category !== filter.category) return false
@@ -85,6 +87,7 @@ export default function InboxView({ tasks, onComplete, onUncomplete, onDelete, o
             onEdit={onEdit}
             onStar={onStar}
             onUnstar={onUnstar}
+            onConvertToWaiting={onConvertToWaiting}
           />
         ))}
       </div>

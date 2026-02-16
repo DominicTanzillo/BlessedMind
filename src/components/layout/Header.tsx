@@ -4,9 +4,10 @@ import BreathingDot from '../ui/BreathingDot'
 interface Props {
   onLogout: () => void
   taskCount: number
+  waitingCount: number
 }
 
-export default function Header({ onLogout, taskCount }: Props) {
+export default function Header({ onLogout, taskCount, waitingCount }: Props) {
   const { pathname } = useLocation()
 
   const linkClass = (path: string) =>
@@ -32,6 +33,12 @@ export default function Header({ onLogout, taskCount }: Props) {
             Mind
             {pathname === '/inbox' && taskCount > 0 && (
               <span className="ml-1.5 text-xs text-stone-400">{taskCount}</span>
+            )}
+          </Link>
+          <Link to="/waiting" className={linkClass('/waiting')}>
+            Waiting
+            {waitingCount > 0 && (
+              <span className="ml-1.5 text-xs text-stone-400">{waitingCount}</span>
             )}
           </Link>
         </nav>

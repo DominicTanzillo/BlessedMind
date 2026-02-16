@@ -12,6 +12,7 @@ CREATE TABLE tasks (
   steps JSONB DEFAULT NULL,              -- null = simple task, [] = multi-step task
   starred BOOLEAN DEFAULT FALSE,
   starred_at TIMESTAMPTZ,
+  waiting BOOLEAN DEFAULT FALSE,
   created_at TIMESTAMPTZ DEFAULT now(),
   updated_at TIMESTAMPTZ DEFAULT now()
 );

@@ -46,7 +46,7 @@ export function scoreTask(task: Task): number {
  * Remaining slots filled by the scoring algorithm.
  */
 export function rankTasks(tasks: Task[]): Task[] {
-  const incomplete = tasks.filter(t => !t.completed)
+  const incomplete = tasks.filter(t => !t.completed && !t.waiting)
 
   const starred = incomplete
     .filter(t => t.starred)

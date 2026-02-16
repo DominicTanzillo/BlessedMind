@@ -11,6 +11,7 @@ interface Props {
   onComplete: (id: string) => void
   onUncomplete: (id: string) => void
   onCompleteStep: (id: string) => void
+  onConvertToWaiting: (id: string) => void
   index: number
 }
 
@@ -27,7 +28,7 @@ function formatRelativeDate(dateStr: string | null): string {
   return `Due ${date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`
 }
 
-export default function TaskCard({ task, onComplete, onUncomplete, onCompleteStep, index }: Props) {
+export default function TaskCard({ task, onComplete, onUncomplete, onCompleteStep, onConvertToWaiting, index }: Props) {
   const [animatingComplete, setAnimatingComplete] = useState(false)
   const [completionMsg, setCompletionMsg] = useState('')
   const [showRipple, setShowRipple] = useState(false)
@@ -191,6 +192,19 @@ export default function TaskCard({ task, onComplete, onUncomplete, onCompleteSte
 
           {task.description && !isCompleted && !currentStep && (
             <p className="text-sm text-stone-500 mt-1.5 line-clamp-2 leading-relaxed">{task.description}</p>
+          )}
+
+          {isCompleted && (
+            <button
+              onClick={(e) => { e.stopPropagation(); onConvertToWaiting(task.id) }}
+              className="inline-flex items-center gap-1 mt-2 px-2 py-0.5 rounded-md text-xs font-medium text-stone-400 hover:text-sage-600 hover:bg-sage-100 transition"
+              title="Convert to follow-up"
+            >
+              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              F/U
+            </button>
           )}
 
           {completionMsg && (

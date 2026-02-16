@@ -7,12 +7,13 @@ import PasswordGate from './components/auth/PasswordGate'
 import AppShell from './components/layout/AppShell'
 import DashboardView from './components/dashboard/DashboardView'
 import InboxView from './components/inbox/InboxView'
+import WaitingView from './components/waiting/WaitingView'
 import AddTaskForm from './components/inbox/AddTaskForm'
 import Modal from './components/ui/Modal'
 
 export default function App() {
   const { authenticated, login, logout, error } = useAuth()
-  const { tasks, loading: tasksLoading, addTask, updateTask, completeTask, uncompleteTask, deleteTask, completeStep, starTask, unstarTask } = useTasks()
+  const { tasks, loading: tasksLoading, addTask, updateTask, completeTask, uncompleteTask, deleteTask, completeStep, starTask, unstarTask, convertToWaiting, reactivateTask } = useTasks()
   const {
     batchTasks,
     completedInBatch,
@@ -30,6 +31,10 @@ export default function App() {
     updateTask(id, updates)
   }, [updateTask])
 
+  const completeWaitingTask = useCallback(async (id: string) => {
+    await updateTask(id, { waiting: false, completed: true, completed_at: new Date().toISOString() })
+  }, [updateTask])
+
   useEffect(() => {
     if (authenticated && 'serviceWorker' in navigator) {
       import('virtual:pwa-register').then(({ registerSW }) => {
@@ -42,7 +47,8 @@ export default function App() {
     return <PasswordGate onLogin={login} error={error} />
   }
 
-  const totalIncomplete = tasks.filter(t => !t.completed).length
+  const totalIncomplete = tasks.filter(t => !t.completed && !t.waiting).length
+  const waitingCount = tasks.filter(t => t.waiting).length
 
   const dashboardEl = (
     <DashboardView
@@ -52,6 +58,7 @@ export default function App() {
       onComplete={completeTask}
       onUncomplete={uncompleteTask}
       onCompleteStep={completeStep}
+      onConvertToWaiting={convertToWaiting}
       onNextBatch={generateNewBatch}
       loading={tasksLoading || batchLoading}
       totalIncomplete={totalIncomplete}
@@ -67,16 +74,27 @@ export default function App() {
       onEdit={handleEdit}
       onStar={starTask}
       onUnstar={unstarTask}
+      onConvertToWaiting={convertToWaiting}
       onAddClick={handleAddClick}
+    />
+  )
+
+  const waitingEl = (
+    <WaitingView
+      tasks={tasks}
+      onReactivate={reactivateTask}
+      onComplete={completeWaitingTask}
+      onDelete={deleteTask}
     />
   )
 
   return (
     <HashRouter>
       <Routes>
-        <Route element={<AppShell onLogout={logout} onAddClick={handleAddClick} taskCount={totalIncomplete} />}>
+        <Route element={<AppShell onLogout={logout} onAddClick={handleAddClick} taskCount={totalIncomplete} waitingCount={waitingCount} />}>
           <Route index element={dashboardEl} />
           <Route path="inbox" element={inboxEl} />
+          <Route path="waiting" element={waitingEl} />
         </Route>
       </Routes>
 

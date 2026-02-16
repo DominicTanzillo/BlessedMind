@@ -124,5 +124,13 @@ export function useTasks() {
     await updateTask(id, { starred: false, starred_at: null })
   }, [updateTask])
 
-  return { tasks, loading, fetchTasks, addTask, updateTask, completeTask, uncompleteTask, deleteTask, completeStep, starTask, unstarTask }
+  const convertToWaiting = useCallback(async (id: string) => {
+    await updateTask(id, { waiting: true, completed: false, completed_at: null })
+  }, [updateTask])
+
+  const reactivateTask = useCallback(async (id: string) => {
+    await updateTask(id, { waiting: false })
+  }, [updateTask])
+
+  return { tasks, loading, fetchTasks, addTask, updateTask, completeTask, uncompleteTask, deleteTask, completeStep, starTask, unstarTask, convertToWaiting, reactivateTask }
 }
