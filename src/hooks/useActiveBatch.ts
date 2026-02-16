@@ -26,7 +26,7 @@ export function useActiveBatch(tasks: Task[]) {
 
   // Get the tasks in the current batch
   const batchTasks = batch
-    ? tasks.filter(t => batch.task_ids.includes(t.id))
+    ? tasks.filter(t => batch.task_ids.includes(t.id) && !t.waiting)
     : []
 
   const completedInBatch = batchTasks.filter(t => t.completed).length
