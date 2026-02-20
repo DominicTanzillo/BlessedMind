@@ -63,7 +63,7 @@ export function useTasks() {
       .single()
 
     if (!error && data) {
-      setTasks(prev => [data as Task, ...prev])
+      setTasks(prev => prev.some(t => t.id === (data as Task).id) ? prev : [data as Task, ...prev])
       return data as Task
     }
     return null

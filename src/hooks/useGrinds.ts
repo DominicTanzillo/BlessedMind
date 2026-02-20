@@ -241,7 +241,7 @@ export function useGrinds() {
       .select()
       .single()
 
-    if (data) setGrinds(prev => [...prev, data as Grind])
+    if (data) setGrinds(prev => prev.some(g => g.id === (data as Grind).id) ? prev : [...prev, data as Grind])
   }, [today])
 
   const deleteGrind = useCallback(async (id: string) => {
